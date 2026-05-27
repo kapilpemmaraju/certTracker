@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+*.log.*
+
+# Excel files (contain sensitive data)
+*.xlsx
+*.xls
+
+# Output files
+output/
+backup/
+
+# Configuration files with sensitive data
+config.yaml
+
+# Notification tracking
+notification_history.json
+workflow_metrics.json
+
+# Text reports
+*.txt
+!requirements.txt
+!README.txt
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# Windows Task Scheduler
+*.xml
+
+# Made with Bob
