@@ -145,16 +145,23 @@ class IndustryBadgeWorkflow:
             hc_worksheet = None
             hc_pattern = self.config.get('files.file_b.hc_worksheet_pattern', 'HC Certification status')
             
+            logger.info(f"Searching for worksheet matching pattern: '{hc_pattern}'")
+            logger.info(f"Available worksheets: {xl.sheet_names}")
+            
+            # Try to find worksheet - be flexible with matching
             for sheet_name in xl.sheet_names:
-                if sheet_name.startswith(hc_pattern):
+                # Remove any trailing wildcards from pattern
+                clean_pattern = hc_pattern.rstrip('*').strip()
+                if sheet_name.startswith(clean_pattern):
                     hc_worksheet = sheet_name
-                    logger.info(f"Found worksheet matching pattern '{hc_pattern}*': {hc_worksheet}")
+                    logger.info(f"✓ Found worksheet matching pattern '{clean_pattern}': {hc_worksheet}")
                     break
             
             if not hc_worksheet:
-                # Fallback to exact worksheet name
-                hc_worksheet = self.config.get('files.file_b.hc_worksheet')
-                logger.info(f"Using configured worksheet: {hc_worksheet}")
+                raise ValueError(
+                    f"No worksheet found starting with '{hc_pattern.rstrip('*').strip()}' in file '{file_b_path.name}'. "
+                    f"Available worksheets: {xl.sheet_names}"
+                )
             
             # Read Excel file - HC worksheet
             df = pd.read_excel(file_b_path, sheet_name=hc_worksheet, engine='openpyxl')
