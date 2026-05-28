@@ -34,7 +34,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('certification_gui.log'),
+        logging.FileHandler('certification_gui.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
@@ -106,7 +106,7 @@ class CertificationGUI:
         # Setup logging to GUI
         self.setup_logging()
         
-        logger.info("🚀 Certification Workflow GUI initialized")
+        logger.info("Certification Workflow GUI initialized")
     
     def setup_styles(self):
         """Configure custom styles for widgets."""
