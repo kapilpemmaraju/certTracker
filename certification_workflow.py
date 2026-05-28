@@ -143,13 +143,25 @@ class CertificationWorkflow:
         try:
             # Load the specific worksheet
             xl = pd.ExcelFile(self.file_b_path)
-            worksheet_name = 'T2G Certification data-11 May'
             
-            if worksheet_name not in xl.sheet_names:
-                raise ValueError(f"Worksheet '{worksheet_name}' not found in File B")
+            # Find worksheet matching pattern "T2G Certification data*"
+            worksheet_name = None
+            pattern = 'T2G Certification data'
+            
+            for sheet_name in xl.sheet_names:
+                if sheet_name.startswith(pattern):
+                    worksheet_name = sheet_name
+                    logger.info(f"Found worksheet matching pattern '{pattern}*': {worksheet_name}")
+                    break
+            
+            if not worksheet_name:
+                raise ValueError(
+                    f"No worksheet found starting with '{pattern}' in File B. "
+                    f"Available worksheets: {xl.sheet_names}"
+                )
             
             self.file_b_data = pd.read_excel(xl, sheet_name=worksheet_name)
-            logger.info(f"File B loaded successfully: {len(self.file_b_data)} rows")
+            logger.info(f"File B loaded successfully: {len(self.file_b_data)} rows from worksheet '{worksheet_name}'")
             
             # Validate required columns
             required_columns = [
@@ -608,11 +620,26 @@ IBM Certification Management System
 
 def main():
     """Main entry point for the workflow."""
+    import glob
     
-    # File paths
+    # File paths with pattern matching
     base_dir = Path(r"C:/Users/KAPILPEMMARAJU/Downloads/CertificationsWestpac")
-    file_a = base_dir / "Active Offshore Cloud List-05212026.xlsx"
-    file_b = base_dir / "T2G Certification_Financial Services as on 11 May 2026.xlsx"
+    
+    # Find File A (any file starting with "Active Offshore")
+    file_a_pattern = str(base_dir / "Active Offshore*.xlsx")
+    file_a_matches = glob.glob(file_a_pattern)
+    if not file_a_matches:
+        raise FileNotFoundError(f"No files found matching pattern: {file_a_pattern}")
+    file_a = Path(sorted(file_a_matches, reverse=True)[0])  # Get most recent
+    logger.info(f"Found File A: {file_a.name}")
+    
+    # Find File B (any file starting with "T2G Certification")
+    file_b_pattern = str(base_dir / "T2G Certification*.xlsx")
+    file_b_matches = glob.glob(file_b_pattern)
+    if not file_b_matches:
+        raise FileNotFoundError(f"No files found matching pattern: {file_b_pattern}")
+    file_b = Path(sorted(file_b_matches, reverse=True)[0])  # Get most recent
+    logger.info(f"Found File B: {file_b.name}")
     
     # Create workflow instance
     workflow = CertificationWorkflow(

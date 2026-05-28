@@ -149,6 +149,103 @@ class ConfigLoader:
         if not path.is_absolute() and base_dir:
             path = base_dir / path
         
+    
+    def find_file_by_pattern(self, file_key: str, base_dir: Optional[Path] = None) -> Path:
+        """
+        Find file matching pattern from configuration.
+        
+        Args:
+            file_key: Configuration key for file (e.g., 'files.file_a')
+            base_dir: Base directory to search for files
+            
+        Returns:
+            Path to the first matching file
+            
+        Raises:
+            FileNotFoundError: If no matching file is found
+        """
+        import glob
+        
+        # Get pattern from config
+        pattern_key = f"{file_key}.path_pattern"
+        pattern = self.get(pattern_key)
+        
+        # If no pattern, fall back to exact path
+        if not pattern:
+            path_key = f"{file_key}.path"
+            return self.get_file_path(path_key, base_dir)
+        
+        # Set base directory
+        if base_dir is None:
+            base_dir = Path.cwd()
+        else:
+            base_dir = Path(base_dir)
+        
+        # Search for matching files
+        search_pattern = str(base_dir / pattern)
+        matching_files = glob.glob(search_pattern)
+        
+        if not matching_files:
+            # Try without base_dir (pattern might be absolute)
+            matching_files = glob.glob(pattern)
+        
+        if not matching_files:
+            raise FileNotFoundError(
+                f"No files found matching pattern '{pattern}' in directory '{base_dir}'"
+            )
+        
+        # Return the first (most recent if sorted) matching file
+        matching_files.sort(reverse=True)  # Sort to get most recent first
+        found_file = Path(matching_files[0])
+        
+        logger.info(f"Found file matching pattern '{pattern}': {found_file.name}")
+        return found_file
+    
+    def get_worksheet_name(self, file_key: str, excel_file: Path) -> str:
+        """
+        Get worksheet name from configuration, supporting patterns.
+        
+        Args:
+            file_key: Configuration key for file (e.g., 'files.file_b')
+            excel_file: Path to Excel file to check worksheets
+            
+        Returns:
+            Worksheet name
+        """
+        import openpyxl
+        import fnmatch
+        
+        # Get pattern from config
+        pattern_key = f"{file_key}.worksheet_pattern"
+        pattern = self.get(pattern_key)
+        
+        # If no pattern, use exact worksheet name
+        if not pattern:
+            worksheet_key = f"{file_key}.worksheet"
+            worksheet_name = self.get(worksheet_key)
+            if not worksheet_name:
+                raise ValueError(f"Worksheet name not found in configuration: {worksheet_key}")
+            return worksheet_name
+        
+        # Load workbook and find matching worksheet
+        try:
+            wb = openpyxl.load_workbook(excel_file, read_only=True)
+            sheet_names = wb.sheetnames
+            wb.close()
+            
+            # Find matching worksheet
+            for sheet_name in sheet_names:
+                if fnmatch.fnmatch(sheet_name, pattern):
+                    logger.info(f"Found worksheet matching pattern '{pattern}': {sheet_name}")
+                    return sheet_name
+            
+            raise ValueError(
+                f"No worksheet found matching pattern '{pattern}' in file '{excel_file.name}'. "
+                f"Available worksheets: {sheet_names}"
+            )
+        except Exception as e:
+            logger.error(f"Error finding worksheet: {e}")
+            raise
         return path
     
     def validate(self) -> bool:
