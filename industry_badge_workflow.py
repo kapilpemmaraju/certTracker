@@ -75,7 +75,20 @@ class IndustryBadgeWorkflow:
     def load_file_a(self) -> pd.DataFrame:
         """Load and process File A (Active Offshore list)."""
         try:
-            file_a_path = self.base_dir / self.config.get('files.file_a.path')
+            import glob
+            
+            # Use pattern matching to find file
+            pattern = self.config.get('files.file_a.path_pattern', 'Active Offshore*.xlsx')
+            search_path = str(self.base_dir / pattern)
+            matching_files = glob.glob(search_path)
+            
+            if not matching_files:
+                # Fallback to exact path
+                file_a_path = self.base_dir / self.config.get('files.file_a.path')
+            else:
+                # Use most recent file
+                file_a_path = Path(sorted(matching_files, reverse=True)[0])
+                logger.info(f"Found File A matching pattern: {file_a_path.name}")
             
             logger.info(f"Loading File A: {file_a_path}")
             
@@ -110,11 +123,38 @@ class IndustryBadgeWorkflow:
     def load_file_b(self) -> pd.DataFrame:
         """Load and process File B (HC Certification Status)."""
         try:
-            file_b_path = self.base_dir / self.config.get('files.file_b.path')
-            hc_worksheet = self.config.get('files.file_b.hc_worksheet')
+            import glob
+            
+            # Use pattern matching to find file
+            pattern = self.config.get('files.file_b.path_pattern', 'T2G Certification*.xlsx')
+            search_path = str(self.base_dir / pattern)
+            matching_files = glob.glob(search_path)
+            
+            if not matching_files:
+                # Fallback to exact path
+                file_b_path = self.base_dir / self.config.get('files.file_b.path')
+            else:
+                # Use most recent file
+                file_b_path = Path(sorted(matching_files, reverse=True)[0])
+                logger.info(f"Found File B matching pattern: {file_b_path.name}")
             
             logger.info(f"Loading File B: {file_b_path}")
-            logger.info(f"Worksheet: {hc_worksheet}")
+            
+            # Find worksheet matching pattern
+            xl = pd.ExcelFile(file_b_path)
+            hc_worksheet = None
+            hc_pattern = self.config.get('files.file_b.hc_worksheet_pattern', 'HC Certification status')
+            
+            for sheet_name in xl.sheet_names:
+                if sheet_name.startswith(hc_pattern):
+                    hc_worksheet = sheet_name
+                    logger.info(f"Found worksheet matching pattern '{hc_pattern}*': {hc_worksheet}")
+                    break
+            
+            if not hc_worksheet:
+                # Fallback to exact worksheet name
+                hc_worksheet = self.config.get('files.file_b.hc_worksheet')
+                logger.info(f"Using configured worksheet: {hc_worksheet}")
             
             # Read Excel file - HC worksheet
             df = pd.read_excel(file_b_path, sheet_name=hc_worksheet, engine='openpyxl')
