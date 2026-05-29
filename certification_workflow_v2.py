@@ -85,9 +85,44 @@ class CertificationWorkflowV2:
     
     def _init_paths(self):
         """Initialize file paths from configuration."""
-        # Input files
-        self.file_a_path = self.config.get_file_path('files.file_a.path', self.base_dir)
-        self.file_b_path = self.config.get_file_path('files.file_b.path', self.base_dir)
+        # Input files - use pattern matching to find files
+        import glob
+        
+        # Try to find File A using pattern
+        file_a_pattern = self.config.get('files.file_a.path_pattern', 'Active Offshore*.xlsx')
+        file_a_search = str(self.base_dir / file_a_pattern)
+        file_a_matches = glob.glob(file_a_search)
+        
+        if file_a_matches:
+            # Use most recent file
+            self.file_a_path = Path(sorted(file_a_matches, reverse=True)[0])
+            logger.info(f"Found File A using pattern: {self.file_a_path.name}")
+        else:
+            # Fallback to configured path
+            file_a_path_str = self.config.get('files.file_a.path')
+            if file_a_path_str:
+                self.file_a_path = self.base_dir / file_a_path_str if not Path(file_a_path_str).is_absolute() else Path(file_a_path_str)
+            else:
+                self.file_a_path = None
+                logger.warning(f"File A not found. Searched for pattern: {file_a_pattern}")
+        
+        # Try to find File B using pattern
+        file_b_pattern = self.config.get('files.file_b.path_pattern', 'T2G Certification*.xlsx')
+        file_b_search = str(self.base_dir / file_b_pattern)
+        file_b_matches = glob.glob(file_b_search)
+        
+        if file_b_matches:
+            # Use most recent file
+            self.file_b_path = Path(sorted(file_b_matches, reverse=True)[0])
+            logger.info(f"Found File B using pattern: {self.file_b_path.name}")
+        else:
+            # Fallback to configured path
+            file_b_path_str = self.config.get('files.file_b.path')
+            if file_b_path_str:
+                self.file_b_path = self.base_dir / file_b_path_str if not Path(file_b_path_str).is_absolute() else Path(file_b_path_str)
+            else:
+                self.file_b_path = None
+                logger.warning(f"File B not found. Searched for pattern: {file_b_pattern}")
         
         # Output directory
         output_dir = self.config.get('files.output.directory', './output')
@@ -243,13 +278,39 @@ class CertificationWorkflowV2:
             # Load Excel file
             xl = pd.ExcelFile(self.file_b_path)
             
-            # Validate worksheet exists
-            if self.worksheet_name not in xl.sheet_names:
-                raise ValueError(f"Worksheet '{self.worksheet_name}' not found in File B")
+            # Find worksheet using flexible pattern matching
+            worksheet_pattern = self.config.get('files.file_b.worksheet_pattern', 'T2G Certification data')
+            worksheet_name = None
+            
+            logger.info(f"Searching for worksheet matching pattern: '{worksheet_pattern}*'")
+            logger.info(f"Available worksheets: {xl.sheet_names}")
+            
+            # Normalize pattern for comparison (remove trailing spaces/asterisks)
+            pattern_normalized = worksheet_pattern.rstrip('* ')
+            
+            for sheet_name in xl.sheet_names:
+                # Check if sheet name starts with pattern (flexible matching)
+                # Handle both "T2G Certification data" and "T2G Certification data-"
+                if sheet_name.startswith(pattern_normalized):
+                    worksheet_name = sheet_name
+                    logger.info(f"✓ Found worksheet: '{worksheet_name}'")
+                    break
+                # Also try with hyphen
+                elif sheet_name.startswith(pattern_normalized + '-'):
+                    worksheet_name = sheet_name
+                    logger.info(f"✓ Found worksheet: '{worksheet_name}'")
+                    break
+            
+            if not worksheet_name:
+                raise ValueError(
+                    f"No worksheet found starting with '{pattern_normalized}' in File B.\n"
+                    f"Available worksheets: {xl.sheet_names}\n"
+                    f"Please update 'files.file_b.worksheet_pattern' in config.yaml if needed."
+                )
             
             # Load worksheet
-            self.file_b_data = pd.read_excel(xl, sheet_name=self.worksheet_name)
-            logger.info(f"File B loaded: {len(self.file_b_data)} rows")
+            self.file_b_data = pd.read_excel(xl, sheet_name=worksheet_name)
+            logger.info(f"File B loaded: {len(self.file_b_data)} rows from worksheet '{worksheet_name}'")
             
             # Validate required columns
             required_columns = [

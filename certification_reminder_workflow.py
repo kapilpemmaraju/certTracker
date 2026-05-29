@@ -106,13 +106,41 @@ class CertificationReminderWorkflow:
         """Load File B HC Certification Status worksheet."""
         try:
             file_b_path = self.base_dir / self.config.get('files.file_b.path')
-            worksheet_name = self.config.get('files.file_b.hc_worksheet', 'HC Certification status-11 May')
+            
+            # Use pattern matching for worksheet name
+            xl = pd.ExcelFile(file_b_path)
+            hc_pattern = self.config.get('files.file_b.hc_worksheet_pattern', 'HC Certification status')
+            worksheet_name = None
             
             logger.info(f"Loading File B: {file_b_path}")
-            logger.info(f"Worksheet: {worksheet_name}")
+            logger.info(f"Searching for worksheet matching pattern: '{hc_pattern}*'")
+            logger.info(f"Available worksheets: {xl.sheet_names}")
             
-            self.file_b_data = pd.read_excel(file_b_path, sheet_name=worksheet_name)
-            logger.info(f"File B loaded: {len(self.file_b_data)} rows")
+            # Normalize pattern for flexible matching
+            pattern_normalized = hc_pattern.rstrip('* ')
+            
+            # Find worksheet with flexible matching
+            for sheet_name in xl.sheet_names:
+                # Check direct match
+                if sheet_name.startswith(pattern_normalized):
+                    worksheet_name = sheet_name
+                    logger.info(f"✓ Found worksheet: '{worksheet_name}'")
+                    break
+                # Also try with hyphen separator
+                elif sheet_name.startswith(pattern_normalized + '-'):
+                    worksheet_name = sheet_name
+                    logger.info(f"✓ Found worksheet: '{worksheet_name}'")
+                    break
+            
+            if not worksheet_name:
+                raise ValueError(
+                    f"No worksheet found starting with '{pattern_normalized}' in File B.\n"
+                    f"Available worksheets: {xl.sheet_names}\n"
+                    f"Please update 'files.file_b.hc_worksheet_pattern' in config.yaml if needed."
+                )
+
+            self.file_b_data = pd.read_excel(xl, sheet_name=worksheet_name)
+            logger.info(f"File B loaded: {len(self.file_b_data)} rows from worksheet '{worksheet_name}'")
             
             # Get required columns
             email_col = self.config.get('files.file_b.email_column', 'Intranet ID')

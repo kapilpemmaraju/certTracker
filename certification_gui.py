@@ -228,86 +228,107 @@ class CertificationGUI:
         )
         workflow_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=10)
         
-        # Card 1: Status Notifications
-        card1 = tk.Frame(workflow_frame, bg='white', relief='raised', borderwidth=2)
-        card1.grid(row=0, column=0, padx=5, pady=5, sticky=(tk.W, tk.E))
+        # Card 1: Status Notifications - Clean, professional design
+        card1 = tk.Frame(workflow_frame, bg='white', relief='solid', borderwidth=1, highlightthickness=0)
+        card1.grid(row=0, column=0, padx=0, pady=4, sticky='ew')
         
-        tk.Radiobutton(
+        radio1 = tk.Radiobutton(
             card1,
             text="📊 Send Certification Status Notifications",
             variable=self.workflow_var,
             value="status",
             font=('Segoe UI', 11, 'bold'),
-            fg=self.colors['success'],
+            fg='#161616',
             bg='white',
-            activebackground='white',
-            selectcolor=self.colors['accent3'],
-            padx=10,
-            pady=10
-        ).pack(anchor=tk.W)
+            activebackground='#f4f4f4',
+            selectcolor='#0f62fe',
+            indicatoron=True,
+            padx=15,
+            pady=12,
+            cursor='hand2',
+            relief='flat',
+            borderwidth=0,
+            anchor='w'
+        )
+        radio1.pack(anchor='w', fill='x')
         
         tk.Label(
             card1,
             text="For employees WITH certifications - sends detailed certification status",
             font=('Segoe UI', 9),
-            fg='gray',
+            fg='#525252',
             bg='white',
-            padx=30
-        ).pack(anchor=tk.W, pady=(0, 10))
+            padx=40,
+            anchor='w'
+        ).pack(anchor='w', fill='x', pady=(0, 12))
         
-        # Card 2: Completion Reminders
-        card2 = tk.Frame(workflow_frame, bg='white', relief='raised', borderwidth=2)
-        card2.grid(row=1, column=0, padx=5, pady=5, sticky=(tk.W, tk.E))
+        # Card 2: Completion Reminders - Clean, professional design
+        card2 = tk.Frame(workflow_frame, bg='white', relief='solid', borderwidth=1, highlightthickness=0)
+        card2.grid(row=1, column=0, padx=0, pady=4, sticky='ew')
         
-        tk.Radiobutton(
+        radio2 = tk.Radiobutton(
             card2,
             text="⚠️ Send Certification Completion Reminders",
             variable=self.workflow_var,
             value="reminder",
             font=('Segoe UI', 11, 'bold'),
-            fg=self.colors['danger'],
+            fg='#161616',
             bg='white',
-            activebackground='white',
-            selectcolor=self.colors['accent1'],
-            padx=10,
-            pady=10
-        ).pack(anchor=tk.W)
+            activebackground='#f4f4f4',
+            selectcolor='#0f62fe',
+            indicatoron=True,
+            padx=15,
+            pady=12,
+            cursor='hand2',
+            relief='flat',
+            borderwidth=0,
+            anchor='w'
+        )
+        radio2.pack(anchor='w', fill='x')
         
         tk.Label(
             card2,
             text="For employees WITHOUT certifications - sends reminder with manager CC",
             font=('Segoe UI', 9),
-            fg='gray',
+            fg='#525252',
             bg='white',
-            padx=30
-        ).pack(anchor=tk.W, pady=(0, 10))
+            padx=40,
+            anchor='w'
+        ).pack(anchor='w', fill='x', pady=(0, 12))
         
-        # Card 3: Industry Badge Reminders
-        card3 = tk.Frame(workflow_frame, bg='white', relief='raised', borderwidth=2)
-        card3.grid(row=2, column=0, padx=5, pady=5, sticky=(tk.W, tk.E))
+        # Card 3: Industry Badge Reminders - Clean, professional design
+        card3 = tk.Frame(workflow_frame, bg='white', relief='solid', borderwidth=1, highlightthickness=0)
+        card3.grid(row=2, column=0, padx=0, pady=4, sticky='ew')
         
-        tk.Radiobutton(
+        radio3 = tk.Radiobutton(
             card3,
             text="🎯 Send Industry Badge Completion Reminders",
             variable=self.workflow_var,
             value="badge",
             font=('Segoe UI', 11, 'bold'),
-            fg=self.colors['warning'],
+            fg='#161616',
             bg='white',
-            activebackground='white',
-            selectcolor=self.colors['warning'],
-            padx=10,
-            pady=10
-        ).pack(anchor=tk.W)
+            activebackground='#f4f4f4',
+            selectcolor='#0f62fe',
+            indicatoron=True,
+            padx=15,
+            pady=12,
+            cursor='hand2',
+            relief='flat',
+            borderwidth=0,
+            anchor='w'
+        )
+        radio3.pack(anchor='w', fill='x')
         
         tk.Label(
             card3,
             text="For employees with 'No Badge' status - sends Industry Badge reminder with manager CC",
             font=('Segoe UI', 9),
-            fg='gray',
+            fg='#525252',
             bg='white',
-            padx=30
-        ).pack(anchor=tk.W, pady=(0, 10))
+            padx=40,
+            anchor='w'
+        ).pack(anchor='w', fill='x', pady=(0, 12))
         
         workflow_frame.columnconfigure(0, weight=1)
         
@@ -323,7 +344,7 @@ class CertificationGUI:
         )
         config_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=10)
         
-        # Test Mode
+        # Test Mode - Improved checkbox
         test_check = tk.Checkbutton(
             config_frame,
             text="🧪 Test Mode (Enable for testing)",
@@ -333,9 +354,13 @@ class CertificationGUI:
             fg=self.colors['info'],
             bg=self.colors['bg_light'],
             activebackground=self.colors['bg_light'],
-            selectcolor=self.colors['accent2']
+            selectcolor='#0f62fe',
+            indicatoron=1,
+            cursor='hand2',
+            relief='flat',
+            borderwidth=0
         )
-        test_check.grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=5)
+        test_check.grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=8)
         
         # Test Email
         tk.Label(
@@ -387,7 +412,7 @@ class CertificationGUI:
             bg=self.colors['bg_light']
         ).pack(side=tk.LEFT, padx=5)
         
-        # Draft Mode
+        # Draft Mode - Improved checkbox
         draft_check = tk.Checkbutton(
             config_frame,
             text="📝 Draft Mode (Create drafts instead of sending)",
@@ -396,9 +421,13 @@ class CertificationGUI:
             fg=self.colors['secondary'],
             bg=self.colors['bg_light'],
             activebackground=self.colors['bg_light'],
-            selectcolor=self.colors['accent1']
+            selectcolor='#8a3ffc',
+            indicatoron=1,
+            cursor='hand2',
+            relief='flat',
+            borderwidth=0
         )
-        draft_check.grid(row=3, column=0, columnspan=2, sticky=tk.W, pady=5)
+        draft_check.grid(row=3, column=0, columnspan=2, sticky=tk.W, pady=8)
         
         config_frame.columnconfigure(1, weight=1)
         
@@ -406,56 +435,69 @@ class CertificationGUI:
         button_frame = tk.Frame(main_frame, bg=self.colors['bg_light'])
         button_frame.grid(row=3, column=0, pady=15)
         
-        # Send Button (Primary)
+        # Send Button (Primary) - Sharp, professional design
         self.send_button = tk.Button(
             button_frame,
             text="📧 Send Emails",
             command=self.send_emails,
-            font=('Segoe UI', 11, 'bold'),
+            font=('Segoe UI', 12, 'bold'),
             fg=self.colors['text_light'],
             bg=self.colors['primary'],
-            activebackground=self.colors['info'],
+            activebackground='#0353e9',
             activeforeground=self.colors['text_light'],
             relief='flat',
             borderwidth=0,
-            padx=30,
-            pady=12,
-            cursor='hand2'
+            padx=35,
+            pady=14,
+            cursor='hand2',
+            highlightthickness=0
         )
-        self.send_button.pack(side=tk.LEFT, padx=5)
+        self.send_button.pack(side=tk.LEFT, padx=8)
         
-        # Clear Button
-        tk.Button(
+        # Add hover effect
+        self.send_button.bind('<Enter>', lambda e: self.send_button.config(bg='#0353e9'))
+        self.send_button.bind('<Leave>', lambda e: self.send_button.config(bg=self.colors['primary']) if not self.is_running else None)
+        
+        # Clear Button - Sharp design
+        clear_btn = tk.Button(
             button_frame,
             text="🔄 Clear Log",
             command=self.clear_log,
-            font=('Segoe UI', 10),
+            font=('Segoe UI', 10, 'bold'),
             fg=self.colors['text_dark'],
             bg='white',
-            activebackground=self.colors['bg_light'],
+            activebackground='#e8e8e8',
             relief='solid',
             borderwidth=1,
-            padx=20,
-            pady=10,
-            cursor='hand2'
-        ).pack(side=tk.LEFT, padx=5)
+            padx=25,
+            pady=12,
+            cursor='hand2',
+            highlightthickness=0
+        )
+        clear_btn.pack(side=tk.LEFT, padx=8)
+        clear_btn.bind('<Enter>', lambda e: clear_btn.config(bg='#f4f4f4'))
+        clear_btn.bind('<Leave>', lambda e: clear_btn.config(bg='white'))
         
-        # Exit Button
-        tk.Button(
+        # Exit Button - Sharp design
+        exit_btn = tk.Button(
             button_frame,
             text="❌ Exit",
             command=self.root.quit,
-            font=('Segoe UI', 10),
+            font=('Segoe UI', 10, 'bold'),
             fg=self.colors['text_light'],
             bg=self.colors['danger'],
             activebackground='#ba1b23',
             activeforeground=self.colors['text_light'],
             relief='flat',
             borderwidth=0,
-            padx=20,
-            pady=10,
-            cursor='hand2'
-        ).pack(side=tk.LEFT, padx=5)
+            padx=25,
+            pady=12,
+            cursor='hand2',
+            highlightthickness=0
+        )
+        exit_btn.pack(side=tk.LEFT, padx=8)
+        exit_btn.bind('<Enter>', lambda e: exit_btn.config(bg='#ba1b23'))
+        exit_btn.bind('<Leave>', lambda e: exit_btn.config(bg=self.colors['danger']))
         
         # Progress and Log Frame
         log_frame = tk.LabelFrame(
